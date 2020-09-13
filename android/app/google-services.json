@@ -1,0 +1,40 @@
+{
+  "project_info": {
+    "project_number": "751873460280",
+    "firebase_url": "https://sabalearning-53576.firebaseio.com",
+    "project_id": "sabalearning-53576",
+    "storage_bucket": "sabalearning-53576.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:751873460280:android:79622c5b4da36c02b03ecd",
+        "android_client_info": {
+          "package_name": "com.example.sabalearning"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "751873460280-sfevhd183sm7ei8g114p4aifu3a3omgn.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyCIgsl1Z1RJWfIUKJRyDnWpXdd5sVHoFOo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "751873460280-sfevhd183sm7ei8g114p4aifu3a3omgn.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
