@@ -1,17 +1,17 @@
+import 'package:firebase_auth/firebase_auth.dart' as auth;
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:sabalearning/models/user.dart';
-
+import 'package:sabalearning/models/user.dart' as myUser;
 class FirebaseAuthService{
 
-  final FirebaseAuth _auth = FirebaseAuth.instance;
+  final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
 
-  User _createUserFromFirebaseUser(FirebaseUser user) {
-    return user != null ? User(user.uid): null;
+  myUser.User _createUserFromFirebaseUser(auth.User user) { 
+    return user != null ? new myUser.User(user.uid, user.photoURL): null;
 
   }
 
-  Stream<User> get user {
-    return _auth.onAuthStateChanged.map((FirebaseUser user) => _createUserFromFirebaseUser(user));
+  Stream<myUser.User> get user {
+    return _auth.userChanges().map((auth.User user) => _createUserFromFirebaseUser(user));
   }
 
   Future signOut() async {
@@ -24,8 +24,8 @@ class FirebaseAuthService{
 
   Future registerWithEmailAndPassword(String email, String password) async{
     try {
-      FirebaseUser user = await _auth.createUserWithEmailAndPassword(email: email, password: password);
-      return _createUserFromFirebaseUser(user);
+      auth.UserCredential user = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      return _createUserFromFirebaseUser(user.user);
     } catch (e) {
       return null;
     }
@@ -33,8 +33,17 @@ class FirebaseAuthService{
 
   Future signInWithEmailAndPassword(String email, String password) async{
     try {
-      FirebaseUser user = await _auth.signInWithEmailAndPassword(email: email, password: password);
-      return _createUserFromFirebaseUser(user);
+      auth.UserCredential user = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      return _createUserFromFirebaseUser(user.user);
+    } catch (e) {
+      return null;
+    }
+  }
+
+  Future updateUserPersonalInfo(myUser.User user) async{
+    try {
+      await _auth.currentUser.updateProfile(displayName: user.displayName, photoURL: user.avatarUrl);
+      return _createUserFromFirebaseUser(_auth.currentUser);      
     } catch (e) {
       return null;
     }
