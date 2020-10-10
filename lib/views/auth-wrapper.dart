@@ -7,18 +7,6 @@ import 'package:sabalearning/views/welcome/sign-in.dart';
 import 'package:sabalearning/views/home.dart';
 import 'package:sabalearning/views/welcome/welcome-page.dart';
 
-/* class AuthWrapper extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
-    
-    if (user == null) {
-      return WelcomePage();
-    }
-    return Home();
-  }
-} */
-
 class AuthWrapper extends StatefulWidget {
   @override
   _AuthWrapperState createState() => _AuthWrapperState();
@@ -28,12 +16,10 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
-    
    if (user == null) {
-      return WelcomePage(context:context);
+      return LoginPage();
     }
     return Home();
-    //return user == null ? WelcomePage(context:context) : Home();
-    
+   
   }
 }
