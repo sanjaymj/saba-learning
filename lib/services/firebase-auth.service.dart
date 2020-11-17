@@ -1,17 +1,17 @@
 import 'package:firebase_auth/firebase_auth.dart' as auth;
-import 'package:firebase_auth/firebase_auth.dart';
 import 'package:sabalearning/models/user.dart' as myUser;
-class FirebaseAuthService{
 
+class FirebaseAuthService {
   final auth.FirebaseAuth _auth = auth.FirebaseAuth.instance;
 
-  myUser.User _createUserFromFirebaseUser(auth.User user) { 
-    return user != null ? new myUser.User(user.uid, user.photoURL): null;
-
+  myUser.User _createUserFromFirebaseUser(auth.User user) {
+    return user != null ? new myUser.User(user.uid, user.photoURL) : null;
   }
 
   Stream<myUser.User> get user {
-    return _auth.userChanges().map((auth.User user) => _createUserFromFirebaseUser(user));
+    return _auth
+        .userChanges()
+        .map((auth.User user) => _createUserFromFirebaseUser(user));
   }
 
   Future signOut() async {
@@ -22,28 +22,31 @@ class FirebaseAuthService{
     }
   }
 
-  Future registerWithEmailAndPassword(String email, String password) async{
+  Future registerWithEmailAndPassword(String email, String password) async {
     try {
-      auth.UserCredential user = await _auth.createUserWithEmailAndPassword(email: email, password: password);
+      auth.UserCredential user = await _auth.createUserWithEmailAndPassword(
+          email: email, password: password);
       return _createUserFromFirebaseUser(user.user);
     } catch (e) {
       return null;
     }
   }
 
-  Future signInWithEmailAndPassword(String email, String password) async{
+  Future signInWithEmailAndPassword(String email, String password) async {
     try {
-      auth.UserCredential user = await _auth.signInWithEmailAndPassword(email: email, password: password);
+      auth.UserCredential user = await _auth.signInWithEmailAndPassword(
+          email: email, password: password);
       return _createUserFromFirebaseUser(user.user);
     } catch (e) {
       return null;
     }
   }
 
-  Future updateUserPersonalInfo(myUser.User user) async{
+  Future updateUserPersonalInfo(myUser.User user) async {
     try {
-      await _auth.currentUser.updateProfile(displayName: user.displayName, photoURL: user.avatarUrl);
-      return _createUserFromFirebaseUser(_auth.currentUser);      
+      await _auth.currentUser.updateProfile(
+          displayName: user.displayName, photoURL: user.avatarUrl);
+      return _createUserFromFirebaseUser(_auth.currentUser);
     } catch (e) {
       return null;
     }

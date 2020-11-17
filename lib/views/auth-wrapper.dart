@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:provider/provider.dart';
 import 'package:sabalearning/models/user.dart';
@@ -16,10 +15,9 @@ class _AuthWrapperState extends State<AuthWrapper> {
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
-   if (user == null) {
+    if (user == null) {
       return LoginPage();
     }
     return Home();
-   
   }
 }
