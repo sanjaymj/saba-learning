@@ -24,37 +24,39 @@ class _EditInfoState extends State<EditInfo> {
   PickedFile _image;
 
   Future getImage(ImageSource imgSource) async {
-      var image = await new ImagePicker().getImage(source:imgSource);
-      setState(() {
-        this._image = image;
-      });
+    var image = await new ImagePicker().getImage(source: imgSource);
+    setState(() {
+      this._image = image;
+    });
   }
-    
+
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
 
+    user.avatarUrl = null;
+
     void saveUserDisplayName(String displayName) {
-      user.displayName = displayName; 
+      user.displayName = displayName;
     }
 
     Future uploadImage(BuildContext context) async {
-        String fileName = this._image.path;
-        StorageReference storage = FirebaseStorage.instance.ref().child(fileName);
-        StorageUploadTask task = storage.putFile(File(this._image.path));
-        StorageTaskSnapshot snapshot = await task.onComplete;
+      String fileName = this._image.path;
+      StorageReference storage = FirebaseStorage.instance.ref().child(fileName);
+      StorageUploadTask task = storage.putFile(File(this._image.path));
+      StorageTaskSnapshot snapshot = await task.onComplete;
 
-        setState(() {
-          final snackBar = SnackBar(content: Text('Profile saved'));
-          globalKey.currentState.showSnackBar(snackBar);
-        });
+      setState(() {
+        final snackBar = SnackBar(content: Text('Profile saved'));
+        globalKey.currentState.showSnackBar(snackBar);
+      });
 
-        storage.getDownloadURL().then((url) async => {
-          user.avatarUrl = url,
-          FirebaseAuthService().updateUserPersonalInfo(user)
-        });
-      }
-    
+      storage.getDownloadURL().then((url) async => {
+            user.avatarUrl = url,
+            FirebaseAuthService().updateUserPersonalInfo(user)
+          });
+    }
+
     return new Scaffold(
       key: globalKey,
       appBar: new AppBar(
@@ -63,50 +65,55 @@ class _EditInfoState extends State<EditInfo> {
           style: new TextStyle(color: Colors.white),
         ),
       ),
-        body: new Container(
-        decoration: backgroundDecoration,
-        height: MediaQuery.of(context).size.height,
-        child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.only(left: 20, top: 20, right: 20),
-            child: Column(
-              children: <Widget>[
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: <Widget>[
-                    Padding(
-                      padding: EdgeInsets.only(left: 30),
-                      child: UserAvatar(this._image!=null ? this._image.path: user.avatarUrl,
-                       this._image==null, 70)
-                    ),
-                    IconButton(
-                        icon: Icon(
-                          Icons.edit,
-                          size: 30.0
-                        ),
-                        onPressed: () {
-                          _showPicker(context);
-                        }
-                      )
-                  ],
-                ),
-                Align(
+      body: new Container(
+          decoration: backgroundDecoration,
+          height: MediaQuery.of(context).size.height,
+          child: SingleChildScrollView(
+            child: Padding(
+              padding: EdgeInsets.only(left: 20, top: 20, right: 20),
+              child: Column(
+                children: <Widget>[
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: <Widget>[
+                      Padding(
+                          padding: EdgeInsets.only(left: 30),
+                          child: UserAvatar(
+                              this._image != null
+                                  ? this._image.path
+                                  : user.avatarUrl,
+                              this._image == null,
+                              70)),
+                      IconButton(
+                          icon: Icon(Icons.edit, size: 30.0),
+                          onPressed: () {
+                            _showPicker(context);
+                          })
+                    ],
+                  ),
+                  Align(
                     alignment: FractionalOffset.bottomCenter,
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.end,
                       mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        InputTextField(title: 'Display Name', isPassword: false, onChange: saveUserDisplayName),
-                        SizedBox(height: 20.0,),
-                        PrimaryButton(onButtonClick: () => uploadImage(context), buttonText: 'Save Changes'),
+                        InputTextField(
+                            title: 'Display Name',
+                            isPassword: false,
+                            onChange: saveUserDisplayName),
+                        SizedBox(
+                          height: 20.0,
+                        ),
+                        PrimaryButton(
+                            onButtonClick: () => uploadImage(context),
+                            buttonText: 'Save Changes'),
                       ],
-                  ),
-                )
-              ],
+                    ),
+                  )
+                ],
+              ),
             ),
-          ),
-        )
-      ),
+          )),
     );
   }
 
@@ -137,8 +144,6 @@ class _EditInfoState extends State<EditInfo> {
               ),
             ),
           );
-        }
-      );
+        });
   }
 }
-
