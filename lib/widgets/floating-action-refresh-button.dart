@@ -5,10 +5,9 @@ import 'package:sabalearning/views/learn/add-new-word.dart';
 import 'package:sabalearning/views/user-settings/edit.dart';
 import 'package:sabalearning/widgets/add-new-word-dialog.dart';
 
-class FloatingActionButtonWrapper extends StatelessWidget {
+class FloatingActionRefreshButtonWrapper extends StatelessWidget {
   final Function callback;
-  final WordPair word;
-  FloatingActionButtonWrapper(this.callback, this.word);
+  FloatingActionRefreshButtonWrapper(this.callback);
   @override
   Widget build(BuildContext context) {
     return Align(
@@ -16,9 +15,9 @@ class FloatingActionButtonWrapper extends StatelessWidget {
       child: FloatingActionButton(
         heroTag: null,
         onPressed: () {
-          this.callback(this.word);
+          this.callback();
         },
-        child: Icon(Icons.add),
+        child: Icon(Icons.refresh),
       ),
     );
   }

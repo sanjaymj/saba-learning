@@ -63,6 +63,81 @@ class FirestoreDatabaseService {
     return wordsToReturn;
   }
 
+  getAllCategoriesForCurrentUser(String uid) async {
+    CollectionReference users = FirebaseFirestore.instance.collection(uid);
+    var wordsInDatabase =
+        (await users.doc(DatabaseKeys.CATEGORIES_KEY).get()).data();
+
+    if (wordsInDatabase == null ||
+        wordsInDatabase[DatabaseKeys.CATEGORIES_KEY] == null) {
+      return new List<String>();
+    }
+
+    var words = await wordsInDatabase[DatabaseKeys.CATEGORIES_KEY];
+    return words;
+  }
+
+  addNewWordCategory(String uid, String category) async {
+    CollectionReference users = FirebaseFirestore.instance.collection(uid);
+    var wordsInDatabase =
+        (await users.doc(DatabaseKeys.CATEGORIES_KEY).get()).data();
+
+    if (wordsInDatabase == null ||
+        wordsInDatabase[DatabaseKeys.CATEGORIES_KEY] == null) {
+      wordsInDatabase = new Map();
+      wordsInDatabase[DatabaseKeys.CATEGORIES_KEY] = [];
+    }
+
+    var words = wordsInDatabase[DatabaseKeys.CATEGORIES_KEY];
+    if (!words.contains(category)) {
+      words.add(category);
+      _addToFirestore(uid, DatabaseKeys.CATEGORIES_KEY,
+          {DatabaseKeys.CATEGORIES_KEY: words});
+    }
+  }
+
+  toggleFavoriteWord(String userId, String originalWord) async {
+    CollectionReference users = FirebaseFirestore.instance.collection(userId);
+    var existingWordsCollection =
+        (await users.doc(DatabaseKeys.WORD_KEY).get()).data();
+
+    if (existingWordsCollection == null ||
+        existingWordsCollection[DatabaseKeys.WORD_KEY] == null) {
+      existingWordsCollection = new Map();
+      existingWordsCollection[DatabaseKeys.WORD_KEY] = [];
+    }
+
+    existingWordsCollection[DatabaseKeys.WORD_KEY].forEach((word) => {
+          if (word["originalWord"] == originalWord)
+            {
+              word["isFavorite"] =
+                  word["isFavorite"] == null ? true : !word["isFavorite"],
+            }
+        });
+    _addToFirestore(userId, DatabaseKeys.WORD_KEY, existingWordsCollection);
+  }
+
+  toggleUnknownWord(String userId, String originalWord) async {
+    CollectionReference users = FirebaseFirestore.instance.collection(userId);
+    var existingWordsCollection =
+        (await users.doc(DatabaseKeys.WORD_KEY).get()).data();
+
+    if (existingWordsCollection == null ||
+        existingWordsCollection[DatabaseKeys.WORD_KEY] == null) {
+      existingWordsCollection = new Map();
+      existingWordsCollection[DatabaseKeys.WORD_KEY] = [];
+    }
+
+    existingWordsCollection[DatabaseKeys.WORD_KEY].forEach((word) => {
+          if (word["originalWord"] == originalWord)
+            {
+              word["isUnknown"] =
+                  word["isUnknown"] == null ? true : !word["isUnknown"],
+            }
+        });
+    _addToFirestore(userId, DatabaseKeys.WORD_KEY, existingWordsCollection);
+  }
+
   _isWordOfTheDayAlreadyAddedForCurrentDay(existingWordOfTheCollectionForUser) {
     existingWordOfTheCollectionForUser[DatabaseKeys.WORD_KEY].forEach((item) {
       if (WordPair.fromJson(item).creationDate ==
@@ -79,6 +154,6 @@ class FirestoreDatabaseService {
     await FirebaseFirestore.instance
         .collection(userId)
         .doc(docName)
-        .update(existingWordOfTheCollectionForUser);
+        .set(existingWordOfTheCollectionForUser);
   }
 }

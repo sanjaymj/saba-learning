@@ -34,6 +34,8 @@ class _EditInfoState extends State<EditInfo> {
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
 
+    user.avatarUrl = null;
+
     void saveUserDisplayName(String displayName) {
       user.displayName = displayName;
     }

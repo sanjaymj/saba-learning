@@ -5,7 +5,7 @@ class SearchImpl extends SearchDelegate {
   String selectedResult;
   List<SabaWord> recent = [];
   List<String> filters = ['verb'];
-  final List<SabaWord> items;
+  var items;
   SearchImpl(this.items);
 
   @override
