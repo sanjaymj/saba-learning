@@ -14,7 +14,7 @@ class LocalStorageService {
   LocalStorageDTO storage = new LocalStorageDTO();
   final WORD_KEY = "words";
   final WORD_OF_THE_DAY_KEY = "wod";
-  final LocalStorage localStorage = new LocalStorage('saba.json');
+  final LocalStorage localStorage = new LocalStorage('sabaStorage.json');
 
   getAllWordsForCurrentUser(String userId) async {
     //clearLocalStorage();
@@ -83,9 +83,6 @@ class LocalStorageService {
       if (categoriesFromStorage != null && categoriesFromStorage.length > 0) {
         categoriesFromStorage
             .forEach((word) => categoriesForCurrentUser.add(word));
-      } else {
-        categoriesForCurrentUser = await FirestoreDatabaseService()
-            .getAllCategoriesForCurrentUser(userId);
       }
       return categoriesForCurrentUser;
     }
@@ -112,22 +109,40 @@ class LocalStorageService {
         .then((_) => localStorage.setItem(DatabaseKeys.CATEGORIES_KEY, words));
   }
 
-  Future<void> addNewWordToLocalStorage(SabaWord word) async {
-    clearLocalStorage();
+  addNewWord(String userId, SabaWord word) async {
+    try {
+      await this._addNewWordToLocalStorage(word);
+      this._addNewWordInFireStore(userId, word);
+    } catch (e) {
+      throw new Exception();
+    }
+  }
+
+  Future<void> _addNewWordToLocalStorage(SabaWord word) async {
     var words;
     var isDuplicate = false;
     await localStorage.ready;
     words = localStorage.getItem(WORD_KEY);
 
-    words.forEach((val) => {
-          if (val['originalWord'] == word.originalWord) {isDuplicate = true}
-        });
-    if (!isDuplicate) {
+    if (words == null) {
+      words = [];
       words.add(word.toJson());
       localStorage.setItem(WORD_KEY, words);
     } else {
-      throw Exception("This is the error");
+      words.forEach((val) => {
+            if (val['originalWord'] == word.originalWord) {isDuplicate = true}
+          });
+      if (!isDuplicate) {
+        words.add(word.toJson());
+        localStorage.setItem(WORD_KEY, words);
+      } else {
+        throw Exception("This is the error");
+      }
     }
+  }
+
+  _addNewWordInFireStore(String userId, SabaWord word) async {
+    FirestoreDatabaseService().addNewSabaWordToCollection(userId, word);
   }
 
   clearLocalStorage() {
@@ -197,6 +212,41 @@ class LocalStorageService {
     FirestoreDatabaseService().toggleFavoriteWord(userId, originalWord);
   }
 
+  updateWord(String userId, SabaWord originalWord) async {
+    try {
+      await this._updateWordInStorage(originalWord);
+      this._updateWordInfireStore(userId, originalWord);
+    } catch (e) {
+      throw new Exception();
+    }
+  }
+
+  _updateWordInStorage(SabaWord originalWord) async {
+    var words;
+    var found = false;
+    await localStorage.ready;
+    words = localStorage.getItem(DatabaseKeys.WORD_KEY);
+
+    words.forEach((val) => {
+          if (val['originalWord'] == originalWord.originalWord)
+            {
+              val['translatedWord'] = originalWord.translatedWord,
+              val['category'] = originalWord.category,
+              val['additionalInfo'] = originalWord.additionalInfo,
+              found = true
+            }
+        });
+    if (found) {
+      localStorage.setItem(DatabaseKeys.WORD_KEY, words);
+    } else {
+      throw new Exception();
+    }
+  }
+
+  _updateWordInfireStore(String userId, SabaWord originalWord) {
+    FirestoreDatabaseService().updateWord(userId, originalWord);
+  }
+
   toggleUnknownWord(String userId, String originalWord) async {
     try {
       await this._toggleUnknownWordInStorage(originalWord);
@@ -229,5 +279,69 @@ class LocalStorageService {
 
   _toggleUnknownWordInfireStore(String userId, String originalWord) {
     FirestoreDatabaseService().toggleUnknownWord(userId, originalWord);
+  }
+
+  getLanguagePairForUser(userId) async {
+    var isStorageReady = await this.isStorageReady();
+
+    if (isStorageReady) {
+      var wordsFromStorage = await this.getlanguagePairFromStorage(userId);
+
+      return wordsFromStorage;
+    }
+  }
+
+  getlanguagePairFromFirestore(String uid) async {
+    CollectionReference users = FirebaseFirestore.instance.collection(uid);
+    var val = await users.doc(DatabaseKeys.PREFERRED_LANGUAGES_KEY).get();
+    var data = val.data();
+    if (data == null) {
+      data = new Map();
+      return [];
+    }
+    return data;
+  }
+
+  getlanguagePairFromStorage(String userId) async {
+    //if (localStorage.getItem(DatabaseKeys.PREFERRED_LANGUAGES_KEY) == null) {
+    var pair = await this.getlanguagePairFromFirestore(userId);
+    await saveLanguagePairToLocalStorage(pair);
+    //}
+    return localStorage.getItem(DatabaseKeys.PREFERRED_LANGUAGES_KEY);
+  }
+
+  saveLanguagePairToLocalStorage(words) {
+    localStorage.ready.then((_) =>
+        localStorage.setItem(DatabaseKeys.PREFERRED_LANGUAGES_KEY, words));
+  }
+
+  deleteCategory(String userId, String newCategory) async {
+    try {
+      await this._deleteCategoryInStorage(userId, newCategory);
+      this._deleteCategoryInFireStore(userId, newCategory);
+    } catch (e) {
+      throw new Exception();
+    }
+  }
+
+  _deleteCategoryInStorage(String userId, String newCategory) async {
+    var words;
+    var found = false;
+    await localStorage.ready;
+    words = localStorage.getItem(DatabaseKeys.CATEGORIES_KEY);
+    words.forEach((val) => {
+          if (val == newCategory) {found = true}
+        });
+
+    if (!found) {
+      throw new Exception();
+    } else {
+      words.remove(newCategory);
+      localStorage.setItem(DatabaseKeys.CATEGORIES_KEY, words);
+    }
+  }
+
+  _deleteCategoryInFireStore(String userId, String newCategory) {
+    FirestoreDatabaseService().deleteWordCategory(userId, newCategory);
   }
 }

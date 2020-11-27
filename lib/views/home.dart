@@ -1,20 +1,12 @@
-import 'dart:io';
-
-import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
-import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:sabalearning/models/user.dart';
 import 'package:sabalearning/services/firebase-auth.service.dart';
-import 'package:sabalearning/services/firestore-database.service.dart';
-import 'package:sabalearning/services/random-word-generator.dart';
 import 'package:sabalearning/utils/constants.dart';
-import 'package:sabalearning/views/learn/add-new-word.dart';
-import 'package:sabalearning/views/learn/word-of-the-day.dart';
-import 'package:sabalearning/views/overview/overview-home-temp.dart';
+import 'package:sabalearning/views/add-new-word/add-new-word-home.dart';
+import 'package:sabalearning/views/word-of-the-day/word-of-the-day.dart';
 import 'package:sabalearning/views/overview/overview-home.dart';
 import 'package:sabalearning/views/user-settings/edit.dart';
-import 'package:sabalearning/views/welcome/sign-in.dart';
 import 'package:sabalearning/widgets/user-avatar.dart';
 
 class Home extends StatelessWidget {
@@ -28,7 +20,8 @@ class Home extends StatelessWidget {
       appBar: PreferredSize(
           preferredSize: Size.fromHeight(50.0),
           child: AppBar(
-            title: Text('Test'),
+            backgroundColor: Colors.blueAccent[700],
+            title: Text('Hi ${user.displayName}'),
             elevation: 0.0,
             actions: <Widget>[
               IconButton(
@@ -63,6 +56,7 @@ class Home extends StatelessWidget {
               appBar: PreferredSize(
                 preferredSize: Size.fromHeight(50.0),
                 child: AppBar(
+                  backgroundColor: Colors.blueAccent[700],
                   bottom: TabBar(
                     tabs: [
                       Tab(text: 'word of the day'),
@@ -72,12 +66,15 @@ class Home extends StatelessWidget {
                   ),
                 ),
               ),
-              body: TabBarView(
-                children: [
-                  WordOfTheDay(),
-                  AddNewWord(),
-                  OverviewHome(),
-                ],
+              body: Container(
+                //decoration: backgroundDecoration,
+                child: TabBarView(
+                  children: [
+                    WordOfTheDay(),
+                    AddNewWordHome(),
+                    OverviewHome(),
+                  ],
+                ),
               ))),
     );
   }

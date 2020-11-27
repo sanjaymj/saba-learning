@@ -3,7 +3,7 @@ import 'package:provider/provider.dart';
 import 'package:sabalearning/models/SabaWord.dart';
 import 'package:sabalearning/models/user.dart';
 import 'package:sabalearning/services/local-storage.service.dart';
-import 'package:sabalearning/views/overview/overview-list.dart';
+import 'package:sabalearning/views/overview/saba-word-list-renderer.dart';
 import 'package:sabalearning/views/overview/overview_bloc.dart';
 import 'package:sabalearning/views/overview/search-bar.dart';
 import 'package:sabalearning/views/overview/word-filter-options.dart';
@@ -38,7 +38,7 @@ class OverviewWrapper extends StatelessWidget {
       body: SingleChildScrollView(
           child: Column(children: [
         WordFilterOptions(updateFilters, this.filters),
-        OverviewListView(),
+        //OverviewListView(),
       ])),
     );
   }

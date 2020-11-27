@@ -1,8 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:sabalearning/models/SabaWord.dart';
+import 'package:sabalearning/widgets/saba-text-label.dart';
 
 class SearchImpl extends SearchDelegate {
   String selectedResult;
+  String translatedResult;
   List<SabaWord> recent = [];
   List<String> filters = ['verb'];
   var items;
@@ -30,18 +32,31 @@ class SearchImpl extends SearchDelegate {
 
   @override
   Widget buildResults(BuildContext context) {
-    return Container(
-      child: Center(child: Text(selectedResult)),
-    );
+    return Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: <Widget>[
+          Center(
+            child: SabaTextLabel(selectedResult, 40.0),
+          ),
+          SizedBox(height: 12.0),
+          Center(child: SabaTextLabel(translatedResult, 30.0)),
+        ]);
   }
 
   @override
   Widget buildSuggestions(BuildContext context) {
-    List<SabaWord> suggestions = [];
-    query.isEmpty
+    var suggestions = [];
+    if (query.isNotEmpty) {
+      items.forEach((item) => {
+            if (item.originalWord.contains(query)) {suggestions.add(item)}
+          });
+    }
+
+    /*query.isEmpty
         ? suggestions = recent
         : suggestions.addAll(
-            items.where((element) => element.originalWord.contains(query)));
+            items.where((element) => element.originalWord.contains(query)));*/
 
     return ListView.builder(
         itemCount: suggestions.length,
@@ -50,6 +65,7 @@ class SearchImpl extends SearchDelegate {
               title: Text(suggestions[index].originalWord),
               onTap: () {
                 selectedResult = suggestions[index].originalWord;
+                translatedResult = suggestions[index].translatedWord;
                 showResults(context);
               });
         });

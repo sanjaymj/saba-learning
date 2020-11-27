@@ -20,10 +20,11 @@ class WordFilterOptions extends StatelessWidget {
         switch (snapshot.connectionState) {
           case ConnectionState.none:
           case ConnectionState.waiting:
-            return new Text('loading...');
           default:
             if (snapshot.hasError)
-              return new Text('Error: ${snapshot.error}');
+              return new Container(width: 0.0, height: 0.0);
+            else if (snapshot.data == null)
+              return new Container(width: 0.0, height: 0.0);
             else
               return SizedBox(
                 width: MediaQuery.of(context).size.width * 0.8,
@@ -31,8 +32,8 @@ class WordFilterOptions extends StatelessWidget {
                     attribute: "wordCategory",
                     decoration: InputDecoration(
                         border: InputBorder.none,
-                        labelText: "Select categories"),
-                    options: dummy(snapshot.data),
+                        labelText: "filter categories"),
+                    options: buildAllFilterChips(snapshot.data),
                     onChanged: (val) {
                       this.callback(val);
                     }),
@@ -42,65 +43,14 @@ class WordFilterOptions extends StatelessWidget {
     );
   }
 
-  dummy(data) {
+  buildAllFilterChips(data) {
     List<FormBuilderFieldOption> widgets = [];
     data.forEach((val) =>
         {widgets.add(FormBuilderFieldOption(child: Text(val), value: val))});
+
+    // add a new chip to show favorites
+    widgets.add(
+        FormBuilderFieldOption(child: Text("favorites"), value: "favorites"));
     return widgets;
   }
 }
-
-/*class WordFilterOptions extends StatefulWidget {
-  final Function callback;
-  final filters;
-  WordFilterOptions(this.callback, this.filters);
-  @override
-  _WordFilterOptionsState createState() => _WordFilterOptionsState();
-}
-
-class _WordFilterOptionsState extends State<WordFilterOptions> {
-  LocalStorageService localstorage = new LocalStorageService();
-  var categories;
-  @override
-  Widget build(BuildContext context) {
-    final user = Provider.of<User>(context);
-    setState(() {
-      categories = localstorage.getStoredCategoriesForCurrentuser(user.uid);
-    });
-
-    return FutureBuilder(
-      future: categories,
-      builder: (BuildContext context, AsyncSnapshot snapshot) {
-        switch (snapshot.connectionState) {
-          case ConnectionState.none:
-          case ConnectionState.waiting:
-            return new Text('loading...');
-          default:
-            if (snapshot.hasError)
-              return new Text('Error: ${snapshot.error}');
-            else
-              return SizedBox(
-                width: MediaQuery.of(context).size.width * 0.8,
-                child: FormBuilderFilterChip(
-                    attribute: "wordCategory",
-                    decoration: InputDecoration(
-                      border: InputBorder.none,
-                    ),
-                    options: dummy(snapshot.data),
-                    initialValue: widget.filters,
-                    onChanged: (val) {
-                      widget.callback();
-                    }),
-              );
-        }
-      },
-    );
-  }
-
-  dummy(data) {
-    List<FormBuilderFieldOption> widgets = [];
-    data.forEach((val) =>
-        {widgets.add(FormBuilderFieldOption(child: Text(val), value: val))});
-    return widgets;
-  }
-}*/

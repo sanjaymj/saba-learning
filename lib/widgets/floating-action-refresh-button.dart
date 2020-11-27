@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:sabalearning/models/SabaWord.dart';
 import 'package:sabalearning/models/WordPair.dart';
-import 'package:sabalearning/views/learn/add-new-word.dart';
 import 'package:sabalearning/views/user-settings/edit.dart';
 import 'package:sabalearning/widgets/add-new-word-dialog.dart';
 
@@ -13,6 +12,7 @@ class FloatingActionRefreshButtonWrapper extends StatelessWidget {
     return Align(
       alignment: Alignment.bottomCenter,
       child: FloatingActionButton(
+        backgroundColor: Colors.blueAccent[700],
         heroTag: null,
         onPressed: () {
           this.callback();
