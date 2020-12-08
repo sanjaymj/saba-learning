@@ -9,6 +9,7 @@ import 'package:sabalearning/services/local-storage.service.dart';
 import 'package:sabalearning/services/random-word-generator.dart';
 import 'package:sabalearning/widgets/floating-action-button-wrapper.dart';
 import 'package:sabalearning/widgets/floating-action-refresh-button.dart';
+import 'package:sabalearning/widgets/saba-text-label.dart';
 import 'package:sabalearning/widgets/snackbar.dart';
 
 class WordOfTheDay extends StatefulWidget {
@@ -24,8 +25,13 @@ class _WordOfTheDayState extends State<WordOfTheDay> {
     //widget.localstorage.clearLocalStorage();
     final user = Provider.of<User>(context);
     var translatedGermanWord;
+
     RandomWordGenerator rd = new RandomWordGenerator();
-    translatedGermanWord = rd.generateRandomWordPair(widget.ignoreTimeStamp);
+    translatedGermanWord =
+        rd.generateRandomWordPair(user.uid, widget.ignoreTimeStamp);
+
+    widget.ignoreTimeStamp =
+        widget.ignoreTimeStamp ? false : widget.ignoreTimeStamp;
 
     FirestoreDatabaseService().addNewWordOfTheDayToCollectionIfNecessary(
         user.uid, translatedGermanWord);
@@ -36,11 +42,9 @@ class _WordOfTheDayState extends State<WordOfTheDay> {
       word.translatedWord = createdWord.englishWord;
       word.category = [];
       var snackbarText;
-      FirestoreDatabaseService().addNewSabaWordToCollection(user.uid, word);
-      //widget.localstorage.addNewWordToLocalStorage(word);
 
       try {
-        await widget.localstorage.addNewWordToLocalStorage(word);
+        await widget.localstorage.addNewWord(user.uid, word);
         snackbarText = 'Added ${word.originalWord} to word collection';
         showSnackBar(snackbarText, context);
         widget.ignoreTimeStamp = false;
@@ -69,29 +73,12 @@ class _WordOfTheDayState extends State<WordOfTheDay> {
                 child: Column(
                   mainAxisAlignment: MainAxisAlignment.center,
                   children: [
-                    Text(
-                      'Word of the day: ${snapshot.data.germanWord}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w800,
-                        fontFamily: 'Roboto',
-                        letterSpacing: 0.5,
-                        fontSize: 30,
-                      ),
-                    ),
+                    SabaTextLabel(
+                        "word of the day ${snapshot.data.germanWord}", 30.0),
                     Container(
                       height: 40.0,
                     ),
-                    Text(
-                      '${snapshot.data.englishWord}',
-                      style: TextStyle(
-                        color: Colors.black,
-                        fontWeight: FontWeight.w400,
-                        fontFamily: 'Roboto',
-                        letterSpacing: 0.5,
-                        fontSize: 40,
-                      ),
-                    ),
+                    SabaTextLabel(snapshot.data.englishWord, 40.0),
                     Container(height: 40.0),
                     Row(
                         mainAxisAlignment: MainAxisAlignment.spaceEvenly,
@@ -120,7 +107,7 @@ class _WordOfTheDayState extends State<WordOfTheDay> {
               ),
               Padding(
                 padding: const EdgeInsets.only(top: 16),
-                child: Text('Error: ${snapshot.error}'),
+                child: Text('Error: Please check your internet connection !!'),
               )
             ];
           } else {

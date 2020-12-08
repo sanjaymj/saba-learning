@@ -75,10 +75,12 @@ class RandomWordGenerator {
     return queryString;
   }
 
-  Future<WordPair> generateRandomWordPair(bool ignoreTimeStamp) async {
+  Future<WordPair> generateRandomWordPair(
+      String uid, bool ignoreTimeStamp) async {
     await localStorage.isStorageReady();
     WordPair enDeWordPair = localStorage.readWordPairFromStorage();
 
+    var langPair = await localStorage.getLanguagePairForUser(uid);
     if (!ignoreTimeStamp) {
       if (enDeWordPair.englishWord != null) {
         if (enDeWordPair.creationDate ==
@@ -95,30 +97,8 @@ class RandomWordGenerator {
 
     final randomEnglishWord = await generateRandomEnglishWord();
 
-    final translatedGermanWord =
-        await translator.translate(randomEnglishWord, from: 'en', to: 'de');
-
-    enDeWordPair.englishWord = translatedGermanWord.source;
-    enDeWordPair.germanWord = translatedGermanWord.text;
-    enDeWordPair.creationDate = DateTime.now().day.toString() +
-        DateTime.now().month.toString() +
-        DateTime.now().year.toString();
-
-    localStorage.saveWordOfTheDayToLocalStorage(enDeWordPair);
-    return enDeWordPair;
-  }
-
-  Future<WordPair> generateRandomWordPairWithoutTimeStampConsideration() async {
-    await localStorage.isStorageReady();
-    WordPair enDeWordPair = localStorage.readWordPairFromStorage();
-
-    enDeWordPair = new WordPair();
-    final translator = GoogleTranslator();
-
-    final randomEnglishWord = await generateRandomEnglishWord();
-
-    final translatedGermanWord =
-        await translator.translate(randomEnglishWord, from: 'en', to: 'de');
+    final translatedGermanWord = await translator.translate(randomEnglishWord,
+        from: langPair['source'], to: langPair['target']);
 
     enDeWordPair.englishWord = translatedGermanWord.source;
     enDeWordPair.germanWord = translatedGermanWord.text;

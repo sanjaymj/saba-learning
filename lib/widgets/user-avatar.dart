@@ -12,7 +12,6 @@ class UserAvatar extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     var imageSource;
-
     if (this._image != null) {
       imageSource = !isNetwork
           ? Image.file(File(this._image))

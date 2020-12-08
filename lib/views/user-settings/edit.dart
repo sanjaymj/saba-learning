@@ -2,13 +2,13 @@ import 'dart:io';
 
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_form_builder/flutter_form_builder.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:provider/provider.dart';
 import 'package:sabalearning/models/user.dart';
 import 'package:sabalearning/services/firebase-auth.service.dart';
 import 'package:sabalearning/services/firestore-database.service.dart';
 import 'package:sabalearning/utils/background-decoration.dart';
-import 'package:sabalearning/widgets/input-text-box.dart';
 import 'package:sabalearning/widgets/primary-button.dart';
 import 'package:sabalearning/widgets/user-avatar.dart';
 
@@ -34,43 +34,47 @@ class _EditInfoState extends State<EditInfo> {
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
 
-    user.avatarUrl = null;
-
     void saveUserDisplayName(String displayName) {
       user.displayName = displayName;
     }
 
     Future uploadImage(BuildContext context) async {
-      String fileName = this._image.path;
-      StorageReference storage = FirebaseStorage.instance.ref().child(fileName);
-      StorageUploadTask task = storage.putFile(File(this._image.path));
-      StorageTaskSnapshot snapshot = await task.onComplete;
+      if (this._image == null) {
+        FirebaseAuthService().updateUserPersonalInfo(user);
+      } else {
+        String fileName = this._image.path;
+        StorageReference storage =
+            FirebaseStorage.instance.ref().child(fileName);
+        StorageUploadTask task = storage.putFile(File(fileName));
+        StorageTaskSnapshot snapshot = await task.onComplete;
 
-      setState(() {
-        final snackBar = SnackBar(content: Text('Profile saved'));
-        globalKey.currentState.showSnackBar(snackBar);
-      });
+        setState(() {
+          final snackBar = SnackBar(content: Text('Profile saved'));
+          globalKey.currentState.showSnackBar(snackBar);
+        });
 
-      storage.getDownloadURL().then((url) async => {
-            user.avatarUrl = url,
-            FirebaseAuthService().updateUserPersonalInfo(user)
-          });
+        storage.getDownloadURL().then((url) async => {
+              user.avatarUrl = url,
+              FirebaseAuthService().updateUserPersonalInfo(user)
+            });
+      }
     }
 
     return new Scaffold(
       key: globalKey,
       appBar: new AppBar(
+        backgroundColor: Colors.blueAccent[700],
         title: new Text(
           "Edit user information",
           style: new TextStyle(color: Colors.white),
         ),
       ),
       body: new Container(
-          decoration: backgroundDecoration,
+          //decoration: backgroundDecoration,
           height: MediaQuery.of(context).size.height,
           child: SingleChildScrollView(
             child: Padding(
-              padding: EdgeInsets.only(left: 20, top: 20, right: 20),
+              padding: EdgeInsets.only(left: 20, top: 100, right: 20),
               child: Column(
                 children: <Widget>[
                   Row(
@@ -91,25 +95,33 @@ class _EditInfoState extends State<EditInfo> {
                           })
                     ],
                   ),
-                  Align(
-                    alignment: FractionalOffset.bottomCenter,
+                  SizedBox(
+                    height: 40.0,
+                  ),
+                  Container(
+                    height: MediaQuery.of(context).size.height / 3,
                     child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.end,
-                      mainAxisAlignment: MainAxisAlignment.end,
                       children: <Widget>[
-                        InputTextField(
-                            title: 'Display Name',
-                            isPassword: false,
-                            onChange: saveUserDisplayName),
-                        SizedBox(
-                          height: 20.0,
-                        ),
+                        FormBuilderTextField(
+                            attribute: "displayName",
+                            initialValue: user.displayName,
+                            decoration: InputDecoration(
+                                icon: Icon(Icons.perm_identity),
+                                labelStyle: new TextStyle(
+                                    color: const Color(0xFF424242))),
+                            validators: [
+                              FormBuilderValidators.required(),
+                            ],
+                            onChanged: (val) {
+                              saveUserDisplayName(val);
+                            }),
+                        Expanded(child: Container()),
                         PrimaryButton(
                             onButtonClick: () => uploadImage(context),
                             buttonText: 'Save Changes'),
                       ],
                     ),
-                  )
+                  ),
                 ],
               ),
             ),

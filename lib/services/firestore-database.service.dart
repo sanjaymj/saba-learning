@@ -96,6 +96,23 @@ class FirestoreDatabaseService {
     }
   }
 
+  deleteWordCategory(String uid, String category) async {
+    CollectionReference users = FirebaseFirestore.instance.collection(uid);
+    var wordsInDatabase =
+        (await users.doc(DatabaseKeys.CATEGORIES_KEY).get()).data();
+
+    if (wordsInDatabase == null ||
+        wordsInDatabase[DatabaseKeys.CATEGORIES_KEY] == null) {
+      wordsInDatabase = new Map();
+      wordsInDatabase[DatabaseKeys.CATEGORIES_KEY] = [];
+    }
+
+    var words = wordsInDatabase[DatabaseKeys.CATEGORIES_KEY];
+
+    _addToFirestore(
+        uid, DatabaseKeys.CATEGORIES_KEY, {DatabaseKeys.CATEGORIES_KEY: words});
+  }
+
   toggleFavoriteWord(String userId, String originalWord) async {
     CollectionReference users = FirebaseFirestore.instance.collection(userId);
     var existingWordsCollection =
@@ -136,6 +153,44 @@ class FirestoreDatabaseService {
             }
         });
     _addToFirestore(userId, DatabaseKeys.WORD_KEY, existingWordsCollection);
+  }
+
+  updateWord(String userId, SabaWord originalWord) async {
+    CollectionReference users = FirebaseFirestore.instance.collection(userId);
+    var existingWordsCollection =
+        (await users.doc(DatabaseKeys.WORD_KEY).get()).data();
+
+    if (existingWordsCollection == null ||
+        existingWordsCollection[DatabaseKeys.WORD_KEY] == null) {
+      existingWordsCollection = new Map();
+      existingWordsCollection[DatabaseKeys.WORD_KEY] = [];
+    }
+
+    existingWordsCollection[DatabaseKeys.WORD_KEY].forEach((word) => {
+          if (word["originalWord"] == originalWord.originalWord)
+            {
+              word["translatedWord"] = originalWord.translatedWord,
+              word["category"] = originalWord.category,
+              word["additionalInfo"] = originalWord.additionalInfo,
+            }
+        });
+    _addToFirestore(userId, DatabaseKeys.WORD_KEY, existingWordsCollection);
+  }
+
+  addLanguagePairCollectionToFirestore(
+      String userId, String source, String target) {
+    var languagePairCollection = new Map();
+    languagePairCollection[DatabaseKeys.PREFERRED_LANGUAGES_KEY] = [];
+    //languagePairCollection[DatabaseKeys.PREFERRED_LANGUAGES_KEY].add(source);
+    //languagePairCollection[DatabaseKeys.PREFERRED_LANGUAGES_KEY].add(target);
+
+    FirebaseFirestore.instance
+        .collection(userId)
+        .doc(DatabaseKeys.PREFERRED_LANGUAGES_KEY)
+        .set({'source': source, 'target': target});
+
+    //_addToFirestore(
+    //  userId, DatabaseKeys.PREFERRED_LANGUAGES_KEY, languagePairCollection);
   }
 
   _isWordOfTheDayAlreadyAddedForCurrentDay(existingWordOfTheCollectionForUser) {
