@@ -20,8 +20,6 @@ class RandomWordGenerator {
   static const MAXIMUM_RANDOM_ENGLISH_WORD_LENGTH = 10;
   static const MINIMUM_RANDOM_ENGLISH_WORD_LENGTH = 4;
 
-  LocalStorageService localStorage = new LocalStorageService();
-
   Future<String> generateRandomEnglishWord() async {
     List<RandomEnglishWordWrapper> randomEnglishWordsCollection;
     var query = generateRandomParamsForApiRequest();
@@ -77,6 +75,8 @@ class RandomWordGenerator {
 
   Future<WordPair> generateRandomWordPair(
       String uid, bool ignoreTimeStamp) async {
+    LocalStorageService localStorage = new LocalStorageService(uid);
+
     await localStorage.isStorageReady();
     WordPair enDeWordPair = localStorage.readWordPairFromStorage();
 

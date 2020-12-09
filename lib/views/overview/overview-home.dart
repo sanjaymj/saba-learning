@@ -26,7 +26,7 @@ class OverviewHome extends StatelessWidget {
 }
 
 class OverviewWrapper extends StatelessWidget {
-  LocalStorageService service = new LocalStorageService();
+  LocalStorageService service;
   List<dynamic> filters = [];
   List<SabaWord> values = [];
 
@@ -34,6 +34,7 @@ class OverviewWrapper extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     user = Provider.of<User>(context);
+    service = new LocalStorageService(user.uid);
     final val1 = Provider.of<OverviewBloc>(context, listen: false);
     updateFilters(val) {
       val1.filters = val;

@@ -1,20 +1,15 @@
-import 'dart:convert';
-
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:flutter/foundation.dart';
 import 'package:localstorage/localstorage.dart';
-import 'package:sabalearning/exceptions/saba-exceptions.dart';
-import 'package:sabalearning/models/LocalStorageDTO.dart';
 import 'package:sabalearning/models/SabaWord.dart';
 import 'package:sabalearning/models/WordPair.dart';
 import 'package:sabalearning/services/firestore-database.service.dart';
 import 'package:sabalearning/utils/database-keys.dart';
 
 class LocalStorageService {
-  LocalStorageDTO storage = new LocalStorageDTO();
-  final WORD_KEY = "words";
-  final WORD_OF_THE_DAY_KEY = "wod";
-  final LocalStorage localStorage = new LocalStorage('sabaStorage.json');
+  LocalStorage localStorage;
+  LocalStorageService(String userId) {
+    localStorage = new LocalStorage(userId + '.json');
+  }
 
   getAllWordsForCurrentUser(String userId) async {
     //clearLocalStorage();
@@ -39,11 +34,11 @@ class LocalStorageService {
   }
 
   getStoredDataFromStorage(String userId) async {
-    if (localStorage.getItem(WORD_KEY) == null) {
+    if (localStorage.getItem(DatabaseKeys.WORD_KEY) == null) {
       List<SabaWord> words = await this.getStoredWordsFromFirestore(userId);
       saveWordsToLocalStorage(words);
     }
-    return localStorage.getItem(WORD_KEY);
+    return localStorage.getItem(DatabaseKeys.WORD_KEY);
   }
 
   getCategoriesFromStorage(String userId) async {
@@ -58,16 +53,16 @@ class LocalStorageService {
 
   Future<List<SabaWord>> getStoredWordsFromFirestore(String uid) async {
     CollectionReference users = FirebaseFirestore.instance.collection(uid);
-    var val = await users.doc(WORD_KEY).get();
+    var val = await users.doc(DatabaseKeys.WORD_KEY).get();
     var data = val.data();
-    if (data == null || data[WORD_KEY] == null) {
+    if (data == null || data[DatabaseKeys.WORD_KEY] == null) {
       data = new Map();
       return [];
     }
 
     var values = new List<SabaWord>();
 
-    var word = await data[WORD_KEY];
+    var word = await data[DatabaseKeys.WORD_KEY];
 
     word.forEach((val) => {values.add(SabaWord.fromJson(val))});
     return values;
@@ -89,19 +84,21 @@ class LocalStorageService {
   }
 
   WordPair readWordPairFromStorage() {
-    if (localStorage.getItem(WORD_OF_THE_DAY_KEY) == null) {
+    if (localStorage.getItem(DatabaseKeys.WORD_OF_THE_DAY_KEY) == null) {
       return new WordPair();
     }
-    return WordPair.fromJson(localStorage.getItem(WORD_OF_THE_DAY_KEY));
+    return WordPair.fromJson(
+        localStorage.getItem(DatabaseKeys.WORD_OF_THE_DAY_KEY));
   }
 
   saveWordOfTheDayToLocalStorage(WordPair item) {
-    localStorage.ready
-        .then((_) => localStorage.setItem(WORD_OF_THE_DAY_KEY, item));
+    localStorage.ready.then(
+        (_) => localStorage.setItem(DatabaseKeys.WORD_OF_THE_DAY_KEY, item));
   }
 
   saveWordsToLocalStorage(List<SabaWord> words) {
-    localStorage.ready.then((_) => localStorage.setItem(WORD_KEY, words));
+    localStorage.ready
+        .then((_) => localStorage.setItem(DatabaseKeys.WORD_KEY, words));
   }
 
   saveCategoriesToLocalStorage(words) {
@@ -122,19 +119,19 @@ class LocalStorageService {
     var words;
     var isDuplicate = false;
     await localStorage.ready;
-    words = localStorage.getItem(WORD_KEY);
+    words = localStorage.getItem(DatabaseKeys.WORD_KEY);
 
     if (words == null) {
       words = [];
       words.add(word.toJson());
-      localStorage.setItem(WORD_KEY, words);
+      localStorage.setItem(DatabaseKeys.WORD_KEY, words);
     } else {
       words.forEach((val) => {
             if (val['originalWord'] == word.originalWord) {isDuplicate = true}
           });
       if (!isDuplicate) {
         words.add(word.toJson());
-        localStorage.setItem(WORD_KEY, words);
+        localStorage.setItem(DatabaseKeys.WORD_KEY, words);
       } else {
         throw Exception("This is the error");
       }
@@ -258,20 +255,15 @@ class LocalStorageService {
 
   _toggleUnknownWordInStorage(String originalWord) async {
     var words;
-    var found = false;
+    var filteredWords;
     await localStorage.ready;
     words = localStorage.getItem(DatabaseKeys.WORD_KEY);
 
-    words.forEach((val) => {
-          if (val['originalWord'] == originalWord)
-            {
-              val['isUnknown'] =
-                  val['isUnknown'] == null ? true : !val['isUnknown'],
-              found = true
-            }
-        });
-    if (found) {
-      localStorage.setItem(DatabaseKeys.WORD_KEY, words);
+    filteredWords =
+        words.where((val) => val['originalWord'] != originalWord).toList();
+
+    if (filteredWords.length != words.length) {
+      localStorage.setItem(DatabaseKeys.WORD_KEY, filteredWords);
     } else {
       throw new Exception();
     }

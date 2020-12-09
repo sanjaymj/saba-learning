@@ -27,11 +27,12 @@ class NewWordWidgetWrapper extends StatelessWidget {
   final GlobalKey<FormBuilderState> _fbKey = GlobalKey<FormBuilderState>();
   List<dynamic> filters = [];
   SabaWord wordToAdd = new SabaWord();
-  LocalStorageService localstorage = new LocalStorageService();
+  LocalStorageService localstorage;
 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
+    localstorage = new LocalStorageService(user.uid);
     final newWordMenuNotifier =
         Provider.of<AddNewWordChangeNotifier>(context, listen: false);
 
@@ -178,7 +179,6 @@ class AutomaticTranslationSwitch extends StatelessWidget {
 }
 
 class TranslationText extends StatelessWidget {
-  LocalStorageService localstorage = new LocalStorageService();
   final Function callback;
 
   TranslationText(this.callback);
