@@ -20,13 +20,14 @@ class OverViewHomeTemp extends StatelessWidget {
 }
 
 class OverviewWrapper extends StatelessWidget {
-  LocalStorageService service = new LocalStorageService();
+  LocalStorageService service;
   List<dynamic> filters = [];
 
   var user;
   @override
   Widget build(BuildContext context) {
     user = Provider.of<User>(context);
+    service = new LocalStorageService(user.uid);
 
     updateFilters(val) {
       final val1 = Provider.of<OverviewBloc>(context, listen: false);

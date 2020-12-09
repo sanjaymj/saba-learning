@@ -8,11 +8,12 @@ class WordFilterOptions extends StatelessWidget {
   final Function callback;
   final filters;
   WordFilterOptions(this.callback, this.filters);
-  LocalStorageService localstorage = new LocalStorageService();
+  LocalStorageService localstorage;
 
   @override
   Widget build(BuildContext context) {
     final user = Provider.of<User>(context);
+    localstorage = new LocalStorageService(user.uid);
     var categories = localstorage.getStoredCategoriesForCurrentuser(user.uid);
     return FutureBuilder(
       future: categories,

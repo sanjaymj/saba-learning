@@ -10,7 +10,7 @@ import 'package:sabalearning/widgets/primary-button.dart';
 import 'package:sabalearning/widgets/snackbar.dart';
 
 class SabaWordListRenderer extends StatelessWidget {
-  LocalStorageService service = new LocalStorageService();
+  LocalStorageService service;
   List<SabaWord> values = [];
   List<dynamic> filters = [];
   var user;
@@ -18,6 +18,7 @@ class SabaWordListRenderer extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     user = Provider.of<User>(context);
+    service = new LocalStorageService(user.uid);
 
     return FutureBuilder(
       future: this.service.getAllWordsForCurrentUser(user.uid),

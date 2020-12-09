@@ -13,7 +13,7 @@ import 'package:sabalearning/widgets/saba-text-label.dart';
 import 'package:sabalearning/widgets/snackbar.dart';
 
 class WordOfTheDay extends StatefulWidget {
-  LocalStorageService localstorage = new LocalStorageService();
+  LocalStorageService localstorage;
   bool ignoreTimeStamp = false;
   @override
   _WordOfTheDayState createState() => _WordOfTheDayState();
@@ -24,6 +24,7 @@ class _WordOfTheDayState extends State<WordOfTheDay> {
   Widget build(BuildContext context) {
     //widget.localstorage.clearLocalStorage();
     final user = Provider.of<User>(context);
+    widget.localstorage = new LocalStorageService(user.uid);
     var translatedGermanWord;
 
     RandomWordGenerator rd = new RandomWordGenerator();

@@ -6,7 +6,7 @@ import 'package:sabalearning/views/add-new-word/add-new-word-change-notifier.dar
 import 'package:sabalearning/views/add-new-word/saba-filter-chip.dart';
 
 class CategoryList extends StatelessWidget {
-  LocalStorageService localstorage = new LocalStorageService();
+  LocalStorageService localstorage;
   final Function updateCategory;
   final Function deleteCategory;
 
@@ -15,6 +15,7 @@ class CategoryList extends StatelessWidget {
   Widget build(BuildContext context) {
     final newWordMenuNotifier = Provider.of<AddNewWordChangeNotifier>(context);
     final user = Provider.of<User>(context);
+    localstorage = new LocalStorageService(user.uid);
 
     var categories = localstorage.getStoredCategoriesForCurrentuser(user.uid);
     return FutureBuilder(

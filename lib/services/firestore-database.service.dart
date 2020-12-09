@@ -145,13 +145,10 @@ class FirestoreDatabaseService {
       existingWordsCollection[DatabaseKeys.WORD_KEY] = [];
     }
 
-    existingWordsCollection[DatabaseKeys.WORD_KEY].forEach((word) => {
-          if (word["originalWord"] == originalWord)
-            {
-              word["isUnknown"] =
-                  word["isUnknown"] == null ? true : !word["isUnknown"],
-            }
-        });
+    existingWordsCollection[DatabaseKeys.WORD_KEY] =
+        existingWordsCollection[DatabaseKeys.WORD_KEY]
+            .where((word) => word["originalWord"] != originalWord)
+            .toList();
     _addToFirestore(userId, DatabaseKeys.WORD_KEY, existingWordsCollection);
   }
 

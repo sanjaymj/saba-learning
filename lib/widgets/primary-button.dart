@@ -8,8 +8,9 @@ class PrimaryButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return RaisedButton(
-        onPressed: null,
-        disabledColor: Colors.grey,
+        onPressed: () async {
+          this.onButtonClick();
+        },
         textColor: Colors.white,
         padding: const EdgeInsets.all(0.0),
         shape: RoundedRectangleBorder(

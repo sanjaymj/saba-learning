@@ -54,6 +54,23 @@ android {
             signingConfig signingConfigs.debug
         }
     }
+
+    flavorDimensions "flavor-type"
+
+    productFlavors {
+        dev {
+            dimension "flavor-type"
+            applicationId "com.example.sabalearning"
+            versionCode 1
+            versionName "1.0"
+        }
+        prod{
+            dimension "flavor-type"
+            applicationId "com.example.sabalearning.prod"
+            versionCode 1
+            versionName "1.0"
+        }
+    }
 }
 
 flutter {
