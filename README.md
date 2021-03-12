@@ -1,6 +1,19 @@
 # sabaLearning
 
-A new Flutter project.
+This is a language learning hybrid app developed using a flutter frontend and a realtime firestore backend.
+
+Using the app, users can improve their vocabularies in German, French, Spanish and Italian. The app provides features to create and add new words to a collection. The words can be automatically translated to desired language. Words can be sorted and filtered based on several categories.
+
+The app also gives a word of the day.
+
+## deployment
+
+The app has two stages. One is a development stage and the other is the production stage. Both stages have their own databases. To deploy the development version locally on your mobile phine, connect your phone to your computer via USB and run the command `flutter run --flavor dev`.
+
+## download
+
+The production variant can also be downloaded from playstore
+https://play.google.com/store/apps/details?id=com.coc.sabalearning.prod
 
 ## Getting Started
 
